@@ -1,0 +1,269 @@
+{
+  "uid": "banking-platform-v1",
+  "title": "Banking Platform - Unified Observability",
+  "description": "Unified dashboard for metrics, traces and logs across all banking microservices",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "tags": ["banking", "microservices", "observability"],
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "type": "datasource",
+        "label": "Prometheus Datasource",
+        "pluginId": "prometheus",
+        "refresh": 1,
+        "hide": 0,
+        "current": {}
+      },
+      {
+        "name": "jaeger_datasource",
+        "type": "datasource",
+        "label": "Jaeger Datasource",
+        "pluginId": "jaeger",
+        "refresh": 1,
+        "hide": 0,
+        "current": {}
+      },
+      {
+        "name": "service",
+        "type": "query",
+        "label": "Service",
+        "datasource": "${datasource}",
+        "query": "label_values(http_server_requests_seconds_count, service)",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "hide": 0,
+        "current": {}
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Request Rate",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "datasource": "${datasource}",
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{service=~\"$service\"}[1m])) by (service)",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": { "lineWidth": 2 }
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Error Rate %",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "datasource": "${datasource}",
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{service=~\"$service\", status=~\"5..\"}[1m])) by (service) / sum(rate(http_server_requests_seconds_count{service=~\"$service\"}[1m])) by (service) * 100",
+          "legendFormat": "{{service}} 5xx %",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": { "lineWidth": 2 },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      }
+    },
+    {
+      "id": 3,
+      "title": "p99 Latency (ms)",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "datasource": "${datasource}",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{service=~\"$service\"}[1m])) by (le, service)) * 1000",
+          "legendFormat": "{{service}} p99",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": { "lineWidth": 2 },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1000 },
+              { "color": "red", "value": 2000 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      }
+    },
+    {
+      "id": 4,
+      "title": "JVM Heap Usage",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "datasource": "${datasource}",
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes{area=\"heap\", service=~\"$service\"}",
+          "legendFormat": "{{service}} - {{id}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "custom": { "lineWidth": 2 }
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Active Virtual Threads",
+      "type": "gauge",
+      "gridPos": { "x": 0, "y": 16, "w": 6, "h": 8 },
+      "datasource": "${datasource}",
+      "targets": [
+        {
+          "expr": "sum(jvm_threads_live_threads{service=~\"$service\"}) by (service)",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 5000 },
+              { "color": "red", "value": 10000 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "orientation": "auto",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      }
+    },
+    {
+      "id": 6,
+      "title": "Kafka Consumer Lag",
+      "type": "timeseries",
+      "gridPos": { "x": 6, "y": 16, "w": 12, "h": 8 },
+      "datasource": "${datasource}",
+      "targets": [
+        {
+          "expr": "sum(kafka_consumer_fetch_manager_records_lag{service=~\"$service\"}) by (service, topic)",
+          "legendFormat": "{{service}} - {{topic}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": { "lineWidth": 2 },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 500 },
+              { "color": "red", "value": 1000 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      }
+    },
+    {
+      "id": 7,
+      "title": "Redis Cache Hit Rate",
+      "type": "timeseries",
+      "gridPos": { "x": 18, "y": 16, "w": 6, "h": 8 },
+      "datasource": "${datasource}",
+      "targets": [
+        {
+          "expr": "sum(rate(cache_gets_total{result=\"hit\", service=~\"$service\"}[1m])) by (service) / sum(rate(cache_gets_total{service=~\"$service\"}[1m])) by (service) * 100",
+          "legendFormat": "{{service}} hit rate %",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(cache_gets_total{result=\"miss\", service=~\"$service\"}[1m])) by (service) / sum(rate(cache_gets_total{service=~\"$service\"}[1m])) by (service) * 100",
+          "legendFormat": "{{service}} miss rate %",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": { "lineWidth": 2 },
+          "min": 0,
+          "max": 100
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      }
+    },
+    {
+      "id": 8,
+      "title": "Distributed Traces",
+      "type": "traces",
+      "gridPos": { "x": 0, "y": 24, "w": 24, "h": 10 },
+      "datasource": "${jaeger_datasource}",
+      "targets": [
+        {
+          "queryType": "search",
+          "service": "$service",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "dedupStrategy": "none"
+      }
+    }
+  ]
+}

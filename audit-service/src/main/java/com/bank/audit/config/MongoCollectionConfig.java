@@ -1,0 +1,69 @@
+package com.bank.audit.config;
+
+import com.mongodb.client.model.CreateCollectionOptions;
+import com.mongodb.client.model.ValidationAction;
+import com.mongodb.client.model.ValidationLevel;
+import org.bson.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.stereotype.Component;
+
+/**
+ * Ensures the audit_events collection exists with a schema validator
+ * that enforces all required fields are present (Req 6.2, 6.3).
+ *
+ * Append-only enforcement strategy:
+ * 1. The validator requires all mandatory fields on insert.
+ * 2. AuditServiceImpl uses MongoTemplate.insert() exclusively — never update/replace.
+ * 3. No application code calls update or delete on this collection.
+ * 4. In production, the MongoDB user for audit-service has INSERT-only privileges
+ *    (configured via MongoDB role-based access control at the infrastructure level).
+ */
+@Component
+public class MongoCollectionConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(MongoCollectionConfig.class);
+    private static final String COLLECTION = "audit_events";
+
+    private final MongoTemplate mongoTemplate;
+
+    public MongoCollectionConfig(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void ensureAuditCollection() {
+        if (!mongoTemplate.collectionExists(COLLECTION)) {
+            // Create collection with JSON Schema validator requiring all mandatory fields
+            Document validator = new Document("$jsonSchema", new Document()
+                    .append("bsonType", "object")
+                    .append("required", java.util.List.of(
+                            "eventId", "correlationId", "serviceOrigin", "action",
+                            "actorId", "resourceId", "ipAddress", "timestamp"))
+                    .append("properties", new Document()
+                            .append("eventId",       new Document("bsonType", "string"))
+                            .append("correlationId", new Document("bsonType", "string"))
+                            .append("serviceOrigin", new Document("bsonType", "string"))
+                            .append("action",        new Document("bsonType", "string"))
+                            .append("actorId",       new Document("bsonType", "string"))
+                            .append("resourceId",    new Document("bsonType", "string"))
+                            .append("ipAddress",     new Document("bsonType", "string"))
+                            .append("timestamp",     new Document("bsonType", "date"))
+                            .append("immutable",     new Document("bsonType", "bool"))
+                    )
+            );
+
+            mongoTemplate.getDb().createCollection(COLLECTION, new CreateCollectionOptions()
+                    .validator(validator)
+                    .validationLevel(ValidationLevel.STRICT)
+                    .validationAction(ValidationAction.ERROR));
+
+            log.info("Created audit_events collection with schema validator (append-only enforcement)");
+        } else {
+            log.info("audit_events collection already exists");
+        }
+    }
+}

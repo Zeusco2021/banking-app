@@ -1,0 +1,39 @@
+# Secrets are loaded from AWS Secrets Manager at runtime: /banking/auth-service/credentials
+# DO NOT place any credentials, API keys or certificates in this file. See Req 12.3.
+
+spring:
+  application:
+    name: auth-service
+  cloud:
+    aws:
+      secretsmanager:
+        enabled: true
+      region:
+        static: us-east-1
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+
+server:
+  port: 8081
+  ssl:
+    enabled: true
+    protocol: TLSv1.3
+    enabled-protocols: TLSv1.3
+
+jwt:
+  access-token-ttl-minutes: 15
+  refresh-token-ttl-days: 7
+  issuer: banking-platform
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true

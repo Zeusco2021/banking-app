@@ -1,0 +1,17 @@
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\config\CorrelationIdFilterConfig.java
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\config\IstioMtlsConfig.java
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\config\SecretsManagerConfig.java
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\filter\CorrelationIdFilter.java
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\model\Account.java
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\model\AccountBalance.java
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\model\AuditEvent.java
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\model\NotificationStatus.java
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\model\TokenResponse.java
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\model\Transaction.java
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\model\TransactionResult.java
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\service\AccountService.java
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\service\AuditService.java
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\service\AuthService.java
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\service\LegacyAdapterService.java
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\service\NotificationService.java
+C:\GldenKiro\AppBancaria\shared-lib\src\main\java\com\bank\shared\service\TransactionService.java

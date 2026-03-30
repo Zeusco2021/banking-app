@@ -1,0 +1,59 @@
+# Secrets are loaded from AWS Secrets Manager at runtime: /banking/audit-service/credentials
+# DO NOT place any credentials, API keys or certificates in this file. See Req 12.3.
+
+spring:
+  application:
+    name: audit-service
+  cloud:
+    aws:
+      secretsmanager:
+        enabled: true
+      region:
+        static: us-east-1
+
+  data:
+    mongodb:
+      uri: ${mongodb.uri:mongodb://localhost:27017/auditdb}
+
+  kafka:
+    bootstrap-servers: ${kafka.bootstrap-servers:localhost:9092}
+    consumer:
+      group-id: audit-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.bank.*"
+    listener:
+      ack-mode: MANUAL_IMMEDIATE
+
+server:
+  port: 8085
+  ssl:
+    enabled: true
+    protocol: TLSv1.3
+    enabled-protocols: TLSv1.3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{correlationId}] [%X{traceId}] %logger{36} - %msg%n"
+
+otel:
+  exporter:
+    otlp:
+      endpoint: http://jaeger-collector:4317
+  service:
+    name: ${spring.application.name}

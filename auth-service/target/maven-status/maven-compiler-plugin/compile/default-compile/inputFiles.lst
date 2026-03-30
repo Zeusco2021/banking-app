@@ -1,0 +1,17 @@
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\AuthServiceApplication.java
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\config\RedisConfig.java
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\config\SecurityConfig.java
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\config\VirtualThreadConfig.java
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\controller\AuthController.java
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\controller\GlobalExceptionHandler.java
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\exception\AccountLockedException.java
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\exception\AuthenticationException.java
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\exception\TokenExpiredException.java
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\model\TokenCacheEntry.java
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\model\User.java
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\repository\InMemoryUserRepository.java
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\repository\UserRepository.java
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\service\AuditEventPublisher.java
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\service\AuthServiceImpl.java
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\service\JwtKeyRotationService.java
+C:\GldenKiro\AppBancaria\auth-service\src\main\java\com\bank\auth\service\JwtService.java

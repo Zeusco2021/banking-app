@@ -1,0 +1,80 @@
+# Secrets are loaded from AWS Secrets Manager at runtime: /banking/legacy-adapter/credentials
+# DO NOT place any credentials, API keys or certificates in this file. See Req 12.3.
+
+spring:
+  application:
+    name: legacy-adapter
+  cloud:
+    aws:
+      secretsmanager:
+        enabled: true
+      region:
+        static: us-east-1
+
+server:
+  port: 8086
+  ssl:
+    enabled: true
+    protocol: TLSv1.3
+    enabled-protocols: TLSv1.3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{correlationId}] [%X{traceId}] %logger{36} - %msg%n"
+
+otel:
+  exporter:
+    otlp:
+      endpoint: http://jaeger-collector:4317
+  service:
+    name: ${spring.application.name}
+
+legacy:
+  weblogic:
+    url: ${LEGACY_WEBLOGIC_URL:http://localhost:7001}
+
+# Service registry: maps module names to new microservice base URLs
+service-registry:
+  services:
+    accounts: ${SERVICE_ACCOUNTS_URL:http://account-service:8083}
+    transactions: ${SERVICE_TRANSACTIONS_URL:http://transaction-service:8084}
+    auth: ${SERVICE_AUTH_URL:http://auth-service:8081}
+    notifications: ${SERVICE_NOTIFICATIONS_URL:http://notification-service:8085}
+    audit: ${SERVICE_AUDIT_URL:http://audit-service:8087}
+
+# AWS AppConfig feature flags for Strangler Fig migration
+feature-flags:
+  app-config:
+    application: ${APPCONFIG_APPLICATION:banking-platform}
+    environment: ${APPCONFIG_ENVIRONMENT:production}
+    profile: ${APPCONFIG_PROFILE:migration-flags}
+  poll-interval-ms: 30000
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      legacyMonolith:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 100
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 2
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+  timelimiter:
+    instances:
+      legacyMonolith:
+        timeoutDuration: 3s

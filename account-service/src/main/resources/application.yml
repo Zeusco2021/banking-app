@@ -1,0 +1,62 @@
+# Secrets are loaded from AWS Secrets Manager at runtime: /banking/account-service/credentials
+# DO NOT place any credentials, API keys or certificates in this file. See Req 12.3.
+
+spring:
+  application:
+    name: account-service
+  cloud:
+    aws:
+      secretsmanager:
+        enabled: true
+      region:
+        static: us-east-1
+
+  datasource:
+    url: ${account.datasource.url}
+    username: ${account.datasource.username}
+    password: ${account.datasource.password}
+    driver-class-name: oracle.jdbc.OracleDriver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    database-platform: org.hibernate.dialect.OracleDialect
+  data:
+    redis:
+      host: ${redis.host:localhost}
+      port: ${redis.port:6379}
+  kafka:
+    bootstrap-servers: ${kafka.bootstrap-servers:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+server:
+  port: 8082
+  ssl:
+    enabled: true
+    protocol: TLSv1.3
+    enabled-protocols: TLSv1.3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{correlationId}] [%X{traceId}] %logger{36} - %msg%n"
+
+otel:
+  exporter:
+    otlp:
+      endpoint: http://jaeger-collector:4317
+  service:
+    name: ${spring.application.name}

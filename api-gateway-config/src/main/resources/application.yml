@@ -1,0 +1,66 @@
+# Secrets are loaded from AWS Secrets Manager at runtime: /banking/api-gateway-config/credentials
+# DO NOT place any credentials, API keys or certificates in this file. See Req 12.3.
+
+spring:
+  application:
+    name: api-gateway-config
+  cloud:
+    aws:
+      secretsmanager:
+        enabled: true
+      region:
+        static: us-east-1
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      # Password and TLS cert loaded from AWS Secrets Manager at runtime
+      # See Req 12.3 — no credentials in this file
+
+rate-limit:
+  max-requests: ${RATE_LIMIT_MAX_REQUESTS:100}
+  window-seconds: ${RATE_LIMIT_WINDOW_SECONDS:60}
+
+# Canary deployment configuration — Requisitos 1.6, 7.4, 7.5, 7.6, 7.7
+canary:
+  # Percentage of traffic (0-100) routed to the new microservice
+  traffic-percentage: ${CANARY_TRAFFIC_PERCENTAGE:0}
+  # Error rate threshold (0.0-1.0) above which automatic rollback is triggered
+  error-rate-threshold: ${CANARY_ERROR_RATE_THRESHOLD:0.01}
+  # How often CanaryMonitor checks the error rate (ms)
+  monitor-interval-ms: ${CANARY_MONITOR_INTERVAL_MS:30000}
+  # Base URL of the new microservice cluster
+  new-service-url: ${CANARY_NEW_SERVICE_URL:http://localhost:8090}
+  # Base URL of the legacy adapter
+  legacy-adapter-url: ${CANARY_LEGACY_ADAPTER_URL:http://localhost:8086}
+
+server:
+  port: 8080
+  ssl:
+    enabled: true
+    protocol: TLSv1.3
+    enabled-protocols: TLSv1.3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{correlationId}] [%X{traceId}] %logger{36} - %msg%n"
+
+otel:
+  exporter:
+    otlp:
+      endpoint: http://jaeger-collector:4317
+  service:
+    name: ${spring.application.name}
