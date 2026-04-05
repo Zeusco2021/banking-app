@@ -33,7 +33,8 @@ public class TransactionController {
                 request.amount(),
                 Transaction.TransactionType.TRANSFER,
                 request.idempotencyKey(),
-                request.correlationId()
+                request.correlationId(),
+                request.currency()
         );
         TransactionResult result = transactionService.processTransaction(serviceRequest);
         return ResponseEntity.ok(result);
@@ -65,6 +66,7 @@ public class TransactionController {
             @NotBlank String targetAccountId,
             @NotNull @Positive BigDecimal amount,
             @NotBlank String idempotencyKey,
-            String correlationId
+            String correlationId,
+            String currency
     ) {}
 }

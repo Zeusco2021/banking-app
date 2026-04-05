@@ -40,6 +40,15 @@
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>secretsmanager</artifactId>
         </dependency>
+        <!-- AWS Payment Cryptography — tokenization of card data (Req 12.6) -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>paymentcryptography</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>paymentcryptographydata</artifactId>
+        </dependency>
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: notification-service
+description: Notification Service — envío asíncrono de notificaciones vía Kafka
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

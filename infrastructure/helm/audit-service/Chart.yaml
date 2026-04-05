@@ -1,0 +1,6 @@
+apiVersion: v2
+name: audit-service
+description: Audit Service — registro inmutable de operaciones para cumplimiento regulatorio
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

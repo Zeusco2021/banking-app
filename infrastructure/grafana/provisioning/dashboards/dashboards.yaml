@@ -1,0 +1,19 @@
+# ============================================================
+# Grafana — Configuración del proveedor de dashboards
+# Requisito 11.5
+# ============================================================
+
+apiVersion: 1
+
+providers:
+  - name: "Plataforma Bancaria"
+    orgId: 1
+    folder: "Plataforma Bancaria"
+    folderUid: "banco-plataforma"
+    type: file
+    disableDeletion: true
+    updateIntervalSeconds: 30
+    allowUiUpdates: false
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: false

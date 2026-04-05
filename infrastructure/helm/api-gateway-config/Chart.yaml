@@ -1,0 +1,6 @@
+apiVersion: v2
+name: api-gateway-config
+description: API Gateway Config — configuración del gateway con canary routing y rate limiting
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

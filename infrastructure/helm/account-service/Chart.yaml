@@ -1,0 +1,6 @@
+apiVersion: v2
+name: account-service
+description: Account Service — gestión del ciclo de vida de cuentas bancarias
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

@@ -21,6 +21,19 @@ rate-limit:
   max-requests: ${RATE_LIMIT_MAX_REQUESTS:100}
   window-seconds: ${RATE_LIMIT_WINDOW_SECONDS:60}
 
+# Auth Service JWT validation endpoint — Requisitos 1.2, 1.3, 1.5
+auth-service:
+  validate-url: ${AUTH_SERVICE_VALIDATE_URL:http://localhost:8081/v1/auth/validate}
+
+# Downstream microservice routing — Requisito 1.1
+routing:
+  auth-service-url:         ${AUTH_SERVICE_URL:http://localhost:8081}
+  account-service-url:      ${ACCOUNT_SERVICE_URL:http://localhost:8082}
+  transaction-service-url:  ${TRANSACTION_SERVICE_URL:http://localhost:8083}
+  notification-service-url: ${NOTIFICATION_SERVICE_URL:http://localhost:8084}
+  audit-service-url:        ${AUDIT_SERVICE_URL:http://localhost:8085}
+  legacy-adapter-url:       ${LEGACY_ADAPTER_URL:http://localhost:8086}
+
 # Canary deployment configuration — Requisitos 1.6, 7.4, 7.5, 7.6, 7.7
 canary:
   # Percentage of traffic (0-100) routed to the new microservice

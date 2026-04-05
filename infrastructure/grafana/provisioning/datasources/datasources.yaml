@@ -1,0 +1,93 @@
+# ============================================================
+# Grafana — Configuración de fuentes de datos (datasources)
+# Requisito 11.5: visualización unificada de métricas, trazas y logs
+# ============================================================
+
+apiVersion: 1
+
+datasources:
+  # ----------------------------------------------------------
+  # Prometheus — Métricas de todos los microservicios (Micrometer)
+  # ----------------------------------------------------------
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus-banco
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    jsonData:
+      httpMethod: POST
+      # Intervalo de scrape configurado en Prometheus (15s por defecto)
+      timeInterval: "15s"
+      # Habilitar ejemplares para correlación con trazas Jaeger
+      exemplarTraceIdDestinations:
+        - name: traceID
+          datasourceUid: jaeger-banco
+    version: 1
+    editable: false
+
+  # ----------------------------------------------------------
+  # Jaeger — Trazas distribuidas (OpenTelemetry / correlationId)
+  # ----------------------------------------------------------
+  - name: Jaeger
+    type: jaeger
+    uid: jaeger-banco
+    access: proxy
+    url: http://jaeger-query:16686
+    jsonData:
+      # Vincular trazas con logs de Loki/Elasticsearch usando traceID
+      tracesToLogsV2:
+        datasourceUid: elasticsearch-banco
+        spanStartTimeShift: "-1m"
+        spanEndTimeShift: "1m"
+        filterByTraceID: true
+        filterBySpanID: false
+        customQuery: false
+      # Vincular trazas con métricas Prometheus
+      tracesToMetrics:
+        datasourceUid: prometheus-banco
+        spanStartTimeShift: "-1m"
+        spanEndTimeShift: "1m"
+        tags:
+          - key: service.name
+            value: service
+      nodeGraph:
+        enabled: true
+    version: 1
+    editable: false
+
+  # ----------------------------------------------------------
+  # Elasticsearch — Logs centralizados (ELK Stack)
+  # ----------------------------------------------------------
+  - name: Elasticsearch
+    type: elasticsearch
+    uid: elasticsearch-banco
+    access: proxy
+    url: http://elasticsearch:9200
+    database: "logs-banco-*"
+    jsonData:
+      esVersion: "8.0.0"
+      timeField: "@timestamp"
+      logMessageField: "message"
+      logLevelField: "level"
+      # Índice de logs con correlationId para trazabilidad cross-service
+      index: "logs-banco-*"
+      interval: Daily
+      maxConcurrentShardRequests: 5
+    version: 1
+    editable: false
+
+  # ----------------------------------------------------------
+  # CloudWatch — Métricas y logs de infraestructura AWS
+  # ----------------------------------------------------------
+  - name: CloudWatch
+    type: cloudwatch
+    uid: cloudwatch-banco
+    access: proxy
+    jsonData:
+      authType: default
+      defaultRegion: us-east-1
+      # Namespaces relevantes para la plataforma bancaria
+      customMetricsNamespaces: "BancoPlatforma/api-gateway,BancoPlatforma/auth-service,BancoPlatforma/account-service,BancoPlatforma/transaction-service,BancoPlatforma/notification-service,BancoPlatforma/audit-service"
+    version: 1
+    editable: false

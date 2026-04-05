@@ -1,0 +1,61 @@
+replicaCount: 2
+
+image:
+  repository: <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/transaction-service
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 8080
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "2000m"
+    memory: "2Gi"
+
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 50
+  targetCPUUtilizationPercentage: 70
+
+# KEDA ScaledObject — Requisito 9.2: escalar por lag de Kafka
+keda:
+  enabled: true
+  minReplicaCount: 0
+  maxReplicaCount: 100
+  kafkaBootstrapServers: "msk-cluster:9092"
+  kafkaConsumerGroup: "transaction-processors"
+  kafkaTopic: "transactions.pending"
+  kafkaLagThreshold: "500"
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8080
+  initialDelaySeconds: 20
+  periodSeconds: 10
+  failureThreshold: 3
+
+env:
+  SPRING_PROFILES_ACTIVE: "prod"
+  SERVER_PORT: "8080"
+
+configMap:
+  data: {}
+
+serviceAccount:
+  create: true
+  annotations: {}

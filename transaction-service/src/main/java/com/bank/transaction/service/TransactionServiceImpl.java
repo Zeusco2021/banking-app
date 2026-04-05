@@ -307,7 +307,9 @@ public class TransactionServiceImpl implements TransactionService {
                 "sourceAccountId", request.sourceAccountId(),
                 "targetAccountId", request.targetAccountId(),
                 "amount", request.amount(),
-                "correlationId", request.correlationId() != null ? request.correlationId() : ""
+                "currency", request.currency() != null ? request.currency() : "USD",
+                "correlationId", request.correlationId() != null ? request.correlationId() : "",
+                "timestamp", LocalDateTime.now().toString()
         );
         try {
             kafkaTemplate.send(TOPIC_TRANSACTIONS_COMPLETED, transactionId, event);

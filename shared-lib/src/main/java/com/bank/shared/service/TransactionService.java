@@ -15,7 +15,8 @@ public interface TransactionService {
         BigDecimal amount,
         Transaction.TransactionType type,
         String idempotencyKey,
-        String correlationId
+        String correlationId,
+        String currency
     ) {}
 
     record DateRange(LocalDateTime from, LocalDateTime to) {}

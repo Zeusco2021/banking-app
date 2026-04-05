@@ -1,0 +1,545 @@
+{
+  "__inputs": [],
+  "__requires": [
+    { "type": "grafana", "id": "grafana", "name": "Grafana", "version": "10.0.0" },
+    { "type": "datasource", "id": "prometheus", "name": "Prometheus", "version": "1.0.0" },
+    { "type": "datasource", "id": "jaeger", "name": "Jaeger", "version": "1.0.0" },
+    { "type": "datasource", "id": "elasticsearch", "name": "Elasticsearch", "version": "1.0.0" },
+    { "type": "datasource", "id": "cloudwatch", "name": "CloudWatch", "version": "1.0.0" }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+        "enable": true,
+        "expr": "changes(process_start_time_seconds{service=~\"$servicio\"}[2m]) > 0",
+        "hide": false,
+        "iconColor": "blue",
+        "name": "Reinicios de servicio",
+        "step": "60s",
+        "titleFormat": "Reinicio: {{service}}"
+      }
+    ]
+  },
+  "description": "Dashboard unificado de métricas, trazas y logs — Plataforma Bancaria. Requisito 11.5",
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Resumen de Estado",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 70 },
+              { "color": "red", "value": 90 }
+            ]
+          },
+          "unit": "percent",
+          "mappings": []
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "id": 1,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "orientation": "auto", "textMode": "auto", "colorMode": "background" },
+      "title": "CPU Máximo",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+          "expr": "max(rate(process_cpu_seconds_total{service=~\"$servicio\"}[1m])) * 100",
+          "legendFormat": "CPU %",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.5 },
+              { "color": "red", "value": 1 }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "id": 2,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "title": "Error Rate",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+          "expr": "sum(rate(http_server_requests_seconds_count{service=~\"$servicio\",status=~\"5..\"}[1m])) / sum(rate(http_server_requests_seconds_count{service=~\"$servicio\"}[1m])) * 100",
+          "legendFormat": "Error Rate %",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "red", "value": 2 }
+            ]
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "id": 3,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "title": "Latencia p99",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{service=~\"$servicio\"}[1m])) by (le))",
+          "legendFormat": "p99",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+      "fieldConfig": {
+        "defaults": { "unit": "reqps", "color": { "mode": "palette-classic" } }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+      "id": 4,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value" },
+      "title": "Throughput (req/s)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+          "expr": "sum(rate(http_server_requests_seconds_count{service=~\"$servicio\"}[1m]))",
+          "legendFormat": "req/s",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+      "fieldConfig": {
+        "defaults": { "unit": "short", "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "green", "value": null },
+            { "color": "yellow", "value": 500 },
+            { "color": "red", "value": 1000 }
+          ]}
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+      "id": 5,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "title": "Kafka Consumer Lag",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+          "expr": "sum(kafka_consumer_fetch_manager_records_lag{service=~\"$servicio\"})",
+          "legendFormat": "Lag",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+      "fieldConfig": {
+        "defaults": { "unit": "short", "color": { "mode": "palette-classic" } }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
+      "id": 6,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value" },
+      "title": "Transacciones Activas",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+          "expr": "sum(transaction_service_active_transactions_total)",
+          "legendFormat": "Activas",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "id": 101,
+      "title": "Métricas de Rendimiento",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+      "fieldConfig": {
+        "defaults": { "unit": "percent", "custom": { "lineWidth": 2 },
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "green", "value": null },
+            { "color": "red", "value": 90 }
+          ]}
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "id": 10,
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "title": "CPU por Servicio (%)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+          "expr": "rate(process_cpu_seconds_total{service=~\"$servicio\"}[1m]) * 100",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [{ "colorMode": "critical", "op": "gt", "value": 90, "visible": true }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+      "fieldConfig": {
+        "defaults": { "unit": "s", "custom": { "lineWidth": 2 } }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "id": 11,
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "title": "Latencia HTTP por Percentil (p50 / p95 / p99)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+          "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{service=~\"$servicio\"}[1m])) by (le, service))",
+          "legendFormat": "p50 — {{service}}",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{service=~\"$servicio\"}[1m])) by (le, service))",
+          "legendFormat": "p95 — {{service}}",
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{service=~\"$servicio\"}[1m])) by (le, service))",
+          "legendFormat": "p99 — {{service}}",
+          "refId": "C"
+        }
+      ],
+      "thresholds": [{ "colorMode": "critical", "op": "gt", "value": 2, "visible": true }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+      "fieldConfig": {
+        "defaults": { "unit": "reqps", "custom": { "lineWidth": 2 } }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+      "id": 12,
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "title": "Throughput HTTP por Servicio (req/s)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+          "expr": "sum(rate(http_server_requests_seconds_count{service=~\"$servicio\"}[1m])) by (service)",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+      "fieldConfig": {
+        "defaults": { "unit": "percent", "custom": { "lineWidth": 2 },
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "green", "value": null },
+            { "color": "yellow", "value": 0.5 },
+            { "color": "red", "value": 1 }
+          ]}
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+      "id": 13,
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "title": "Error Rate HTTP 5xx por Servicio (%)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+          "expr": "sum(rate(http_server_requests_seconds_count{service=~\"$servicio\",status=~\"5..\"}[1m])) by (service) / sum(rate(http_server_requests_seconds_count{service=~\"$servicio\"}[1m])) by (service) * 100",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [{ "colorMode": "critical", "op": "gt", "value": 1, "visible": true }]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 },
+      "id": 102,
+      "title": "Kafka y Transacciones",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+      "fieldConfig": {
+        "defaults": { "unit": "short", "custom": { "lineWidth": 2 },
+          "thresholds": { "mode": "absolute", "steps": [
+            { "color": "green", "value": null },
+            { "color": "yellow", "value": 500 },
+            { "color": "red", "value": 1000 }
+          ]}
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 23 },
+      "id": 20,
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "title": "Kafka Consumer Lag por Topic",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+          "expr": "kafka_consumer_fetch_manager_records_lag{service=~\"$servicio\"}",
+          "legendFormat": "{{topic}} — {{service}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+      "fieldConfig": {
+        "defaults": { "unit": "short", "custom": { "lineWidth": 2 } }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 23 },
+      "id": 21,
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "title": "Transacciones Procesadas por Segundo",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+          "expr": "sum(rate(transaction_service_transactions_total{status=\"COMPLETED\"}[1m]))",
+          "legendFormat": "Completadas/s",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+          "expr": "sum(rate(transaction_service_transactions_total{status=\"FAILED\"}[1m]))",
+          "legendFormat": "Fallidas/s",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 31 },
+      "id": 103,
+      "title": "Trazas Distribuidas (Jaeger)",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "jaeger", "uid": "jaeger-banco" },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 32 },
+      "id": 30,
+      "options": {
+        "query": {
+          "operation": "",
+          "service": "$servicio",
+          "tags": "correlationId=$correlationId",
+          "minDuration": "",
+          "maxDuration": "",
+          "limit": 20
+        }
+      },
+      "title": "Trazas por Servicio y correlationId",
+      "type": "traces"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 42 },
+      "id": 104,
+      "title": "Logs Centralizados (ELK)",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "elasticsearch", "uid": "elasticsearch-banco" },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 43 },
+      "id": 40,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "title": "Logs de Microservicios",
+      "type": "logs",
+      "targets": [
+        {
+          "datasource": { "type": "elasticsearch", "uid": "elasticsearch-banco" },
+          "query": "service:$servicio AND correlationId:$correlationId",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 53 },
+      "id": 105,
+      "title": "Alarmas CloudWatch",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "cloudwatch", "uid": "cloudwatch-banco" },
+      "fieldConfig": {
+        "defaults": { "unit": "percent", "custom": { "lineWidth": 2 } }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 54 },
+      "id": 50,
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "title": "CPU CloudWatch por Servicio ECS",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "cloudwatch", "uid": "cloudwatch-banco" },
+          "dimensions": { "ServiceName": "$servicio" },
+          "expression": "",
+          "id": "cpu_cw",
+          "matchExact": false,
+          "metricEditorMode": 0,
+          "metricName": "CPUUtilization",
+          "metricQueryType": 0,
+          "namespace": "AWS/ECS",
+          "period": "60",
+          "refId": "A",
+          "region": "us-east-1",
+          "statistic": "Average"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "cloudwatch", "uid": "cloudwatch-banco" },
+      "fieldConfig": {
+        "defaults": { "unit": "s", "custom": { "lineWidth": 2 } }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 54 },
+      "id": 51,
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "title": "Latencia p99 CloudWatch por Servicio",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "cloudwatch", "uid": "cloudwatch-banco" },
+          "dimensions": {},
+          "expression": "",
+          "id": "lat_cw",
+          "matchExact": false,
+          "metricEditorMode": 0,
+          "metricName": "http_server_requests_seconds",
+          "metricQueryType": 0,
+          "namespace": "BancoPlatforma/$servicio",
+          "period": "60",
+          "refId": "A",
+          "region": "us-east-1",
+          "statistic": "p99"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["banco", "plataforma", "microservicios", "observabilidad"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "datasource": { "type": "prometheus", "uid": "prometheus-banco" },
+        "definition": "label_values(http_server_requests_seconds_count, service)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Servicio",
+        "multi": true,
+        "name": "servicio",
+        "options": [],
+        "query": {
+          "query": "label_values(http_server_requests_seconds_count, service)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": { "selected": false, "text": "", "value": "" },
+        "hide": 0,
+        "label": "Correlation ID",
+        "name": "correlationId",
+        "options": [],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "auto": true,
+        "auto_count": 30,
+        "auto_min": "10s",
+        "current": { "selected": false, "text": "auto", "value": "$__auto_interval_intervalo" },
+        "hide": 0,
+        "label": "Intervalo",
+        "name": "intervalo",
+        "options": [],
+        "query": "1m,5m,10m,30m,1h,6h,12h,1d",
+        "refresh": 2,
+        "type": "interval"
+      }
+    ]
+  },
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Plataforma Bancaria — Observabilidad Unificada",
+  "uid": "banco-plataforma-obs",
+  "version": 1
+}

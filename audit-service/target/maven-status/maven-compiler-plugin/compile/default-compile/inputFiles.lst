@@ -1,0 +1,11 @@
+C:\GldenKiro\AppBancaria\audit-service\src\main\java\com\bank\audit\AuditServiceApplication.java
+C:\GldenKiro\AppBancaria\audit-service\src\main\java\com\bank\audit\config\KafkaConsumerConfig.java
+C:\GldenKiro\AppBancaria\audit-service\src\main\java\com\bank\audit\config\LoggingConfig.java
+C:\GldenKiro\AppBancaria\audit-service\src\main\java\com\bank\audit\config\MicrometerConfig.java
+C:\GldenKiro\AppBancaria\audit-service\src\main\java\com\bank\audit\config\MongoCollectionConfig.java
+C:\GldenKiro\AppBancaria\audit-service\src\main\java\com\bank\audit\config\OpenTelemetryConfig.java
+C:\GldenKiro\AppBancaria\audit-service\src\main\java\com\bank\audit\config\VirtualThreadConfig.java
+C:\GldenKiro\AppBancaria\audit-service\src\main\java\com\bank\audit\controller\AuditController.java
+C:\GldenKiro\AppBancaria\audit-service\src\main\java\com\bank\audit\model\AuditEventDocument.java
+C:\GldenKiro\AppBancaria\audit-service\src\main\java\com\bank\audit\repository\AuditEventRepository.java
+C:\GldenKiro\AppBancaria\audit-service\src\main\java\com\bank\audit\service\AuditServiceImpl.java

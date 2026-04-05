@@ -1,0 +1,23 @@
+# KEDA ScaledObject — Requisito 9.2: escalar Transaction Service por lag de Kafka
+# Cuando el lag supera 500 mensajes en transactions.pending, KEDA escala los pods
+{{- if .Values.keda.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "service.fullname" . }}-keda
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "service.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    name: {{ include "service.fullname" . }}
+  minReplicaCount: {{ .Values.keda.minReplicaCount }}
+  maxReplicaCount: {{ .Values.keda.maxReplicaCount }}
+  triggers:
+    - type: kafka
+      metadata:
+        bootstrapServers: {{ .Values.keda.kafkaBootstrapServers | quote }}
+        consumerGroup: {{ .Values.keda.kafkaConsumerGroup | quote }}
+        topic: {{ .Values.keda.kafkaTopic | quote }}
+        lagThreshold: {{ .Values.keda.kafkaLagThreshold | quote }}
+{{- end }}

@@ -102,11 +102,32 @@
                 <scope>import</scope>
             </dependency>
 
+            <!-- AWS SDK v2 BOM (manages all AWS SDK module versions) -->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>2.25.40</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!-- Spring Cloud AWS Secrets Manager Starter (version managed by BOM above) -->
             <dependency>
                 <groupId>io.awspring.cloud</groupId>
                 <artifactId>spring-cloud-aws-starter-secrets-manager</artifactId>
                 <version>3.1.1</version>
+            </dependency>
+
+            <!-- AWS Payment Cryptography — not included in AWS SDK BOM 2.25.40 -->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>paymentcryptography</artifactId>
+                <version>2.25.40</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>paymentcryptographydata</artifactId>
+                <version>2.25.40</version>
             </dependency>
 
             <!-- OpenTelemetry BOM -->

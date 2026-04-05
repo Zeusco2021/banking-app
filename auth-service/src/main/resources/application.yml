@@ -16,6 +16,14 @@ spring:
       port: ${REDIS_PORT:6379}
       timeout: 2000ms
 
+  kafka:
+    bootstrap-servers: ${kafka.bootstrap-servers:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+
 server:
   port: 8081
   ssl:

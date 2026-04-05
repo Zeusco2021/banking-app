@@ -3,6 +3,8 @@ com\bank\shared\model\TransactionResult.class
 com\bank\shared\service\AccountService$CreateAccountRequest.class
 com\bank\shared\service\AuthService$AuthRequest.class
 com\bank\shared\model\Account.class
+com\bank\shared\model\CardData.class
+com\bank\shared\config\CardTokenizationConfig.class
 com\bank\shared\service\TransactionService$TransactionRequest.class
 com\bank\shared\model\NotificationStatus$Status.class
 com\bank\shared\model\Transaction.class
@@ -18,8 +20,10 @@ com\bank\shared\service\AuthService$RefreshTokenResponse.class
 com\bank\shared\config\CorrelationIdFilterConfig.class
 com\bank\shared\config\IstioMtlsConfig.class
 com\bank\shared\service\AuthService.class
+com\bank\shared\service\CardTokenizationService.class
 com\bank\shared\config\SecretsManagerConfig.class
 com\bank\shared\model\Transaction$TransactionStatus.class
+com\bank\shared\service\impl\CardTokenizationServiceImpl.class
 com\bank\shared\service\NotificationService$NotificationRequest.class
 com\bank\shared\service\AccountService$UpdateAccountRequest.class
 com\bank\shared\service\TransactionService$DateRange.class
